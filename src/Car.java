@@ -26,7 +26,11 @@ public class Car {
     private DoubleProperty positionX = new SimpleDoubleProperty();
     private DoubleProperty positionY = new SimpleDoubleProperty();
     private ArrayList<Street> route = new ArrayList<>();
-    private Street currentStreet;
+    private Street currentStreet;    
+    private Street prevStreet;
+    private int numOfStreets;
+    private int currentStreetIndex;
+    private boolean isBend;
 
     public Car(ArrayList<Street> route) {
         ImageView imageView = new ImageView();
@@ -35,40 +39,91 @@ public class Car {
         imageView.setImage(new Image(getClass().getResourceAsStream("img\\red.png")));
 
         this.route = route;
-        currentStreet = route.get(0);
+        numOfStreets = route.size();
+        currentStreetIndex = 0;
+        currentStreet = route.get(currentStreetIndex);
         this.pane = new Pane();
-        this.pane.setLayoutX(400);
-        this.pane.setLayoutY(0);
+        this.pane.setLayoutX(currentStreet.getX());
+        this.pane.setLayoutY(currentStreet.getY());
 
         this.pane.getChildren().add(imageView);
 
         play();
     }
-    
-    public void moveAndBend(){
-    
+
+    public void bendLeft() {
+
+    }
+
+    public void bendRight() {
+    }
+
+    public void driveLeft(double width) {
+        translateTransition.setToX(width);
+//        translateTransition.setToY(currentStreet.getY());
+    }
+
+    public void driveRight(double width) {
+        translateTransition.setByX(width);
+    }
+
+    public void driveUp(double height) {
+        translateTransition.setByY(height);
+    }
+
+    public void driveDown(double height) {
+        translateTransition.setByY(height);
+    }
+
+    public void getNextStreet() {
+        prevStreet = currentStreet;
+        currentStreetIndex++;
+        if (currentStreetIndex == numOfStreets) {
+            return;
+        }
+
+        currentStreet = route.get(currentStreetIndex);
+        
+        
+        play();
     }
 
     public void play() {
-        translateTransition = new TranslateTransition(Duration.millis(2000), this.pane);
         double streetWidth = currentStreet.getWidth();
         double streetHeight = currentStreet.getHeight();
+        double speed = currentStreet.getSpeed();
+        translateTransition = new TranslateTransition(Duration.millis(speed), this.pane);
+        
         if (streetHeight > streetWidth) {
-            translateTransition.setByY(streetHeight);
+            
+            if( this.pane.getLayoutY() < currentStreet.getY() + streetHeight){
+                System.out.println("moving down");
+                driveDown(streetHeight);
+            }else{
+                System.out.println("moving up");
+                driveUp(currentStreet.getY() - streetHeight);
+            }
+            
         } else {
-            translateTransition.setByX(streetWidth);
+            System.out.println("current street width ");
+            if( this.pane.getLayoutX() < currentStreet.getX() + streetWidth){
+                System.out.println("moving right");
+                driveRight(streetWidth);
+            }else{
+                System.out.println("moving left");
+                driveLeft(currentStreet.getX() - streetWidth);
+            }
+           
         }
         translateTransition.setCycleCount(1);
         translateTransition.setAutoReverse(false);
-        translateTransition.setOnFinished( (w)->{
-         System.out.println("animation has finished "+w);
-          
-         play();
-         
+        translateTransition.setOnFinished((w) -> {
+            System.out.println("animation has finished " + w);
+            getNextStreet();
+
         });
 
         translateTransition.play();
-        
 
     }
 
