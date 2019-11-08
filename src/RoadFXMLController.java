@@ -29,17 +29,19 @@ public class RoadFXMLController implements Initializable {
      */
     @FXML Canvas canvas;
     @FXML Pane pane;
+    private final static double ROAD_WIDTH = 100;
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
         
-        
-        GraphicsContext gc = canvas.getGraphicsContext2D();
+       
         // initialize streets
-        Street street1 = new Street( gc, 400,0,40,300, "Alfred Riwani");
-        Street street2 = new Street( gc, 0,350,350,40, "Saka Tinubu");
-        Street street3 = new Street( gc, 500,350,300,40, "Ozumba Mbadiwe");
-        Street street4 = new Street( gc, 400,450,40,300, "Adedeji Drive");
+//        Street street1 = new Street( gc, 400,0,40,300, "Alfred Riwani",5000);
+//        Street street2 = new Street( gc, 0,350,350,40, "Saka Tinubu",3000);
+        Street street1 = new Street( canvas,400,0,ROAD_WIDTH,300, "Alfred Riwani",5000);
+        Street street2 = new Street( canvas,0,350,350,ROAD_WIDTH, "Saka Tinubu",3000);
+//        Street street3 = new Street( gc, 500,350,300,40, "Ozumba Mbadiwe",7000);
+//        Street street4 = new Street( gc, 400,450,40,300, "Adedeji Drive",9000);
 //        Street street5 = new Street( gc, 10,10,40,700, "Adeola Odeku");
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("CarFXML.fxml"));
@@ -57,9 +59,6 @@ public class RoadFXMLController implements Initializable {
           //CarFXMLController car =
         
         
-        
-        
-
     }    
     
 }
