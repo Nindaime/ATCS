@@ -50,8 +50,8 @@ public class RoadFXMLController implements Initializable {
           ArrayList<Street> route = new ArrayList<>();
           route.add(street1);
           route.add(street2);
-          Car car = new Car( route );
-          pane.getChildren().add( car.asPane());
+//          Car car = new Car( route );
+//          pane.getChildren().add( car.asPane());
           
           //intialize Cars
           //CarFXMLController car =
