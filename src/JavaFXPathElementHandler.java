@@ -162,6 +162,7 @@ public class JavaFXPathElementHandler implements PathHandler {
         lastY = y;
         MoveTo moveTo = new MoveTo(x, y);
         System.out.println("moving to x abs"+x);
+        System.out.println("moving to y abs"+y);
         moveTo.setAbsolute(true);
         path.getElements().add(moveTo);
     }
