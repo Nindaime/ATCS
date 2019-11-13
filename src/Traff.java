@@ -3,8 +3,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import javafx.animation.PathTransition;
 import javafx.animation.SequentialTransition;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -25,6 +28,8 @@ import org.w3c.dom.svg.SVGDocument;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 
 public class Traff extends Application {
+    
+    private static final int TOTAL_NUMBER_OF_CARS = 20;
 
     private static ImageView car;
 
@@ -54,27 +59,25 @@ public class Traff extends Application {
         var pick = pickRandomPath();
         var source = pick[0];
         var destination = pick[1];
-        
+
+
+//        var source = "L13";
+//        var destination = "L10";
 
         var c = DijkstraShortestPath.findPathBetween(CustomDirectedGraph.getDefaultEdges(), source, destination);
-       
 
         car = new ImageView(new Image(getClass().getResourceAsStream("img/red.png")));
         car.setFitHeight(20);
 
         car.setPreserveRatio(true);
 
-
         root.getChildren().add(car);
-        // ImageView map = new ImageView(new
-        // Image(getClass().getResourceAsStream("img/road_v2.png")));
-        // map.setFitWidth(540);
-        // ImageView map = new ImageView(new
-        // Image(getClass().getResourceAsStream("img/road_v2.png")));
-        // map.setFitWidth(540);
-        car.setPreserveRatio(true);
+        ImageView map = new ImageView(new Image(getClass().getResourceAsStream("img/road_v2.png")));
+        map.setFitWidth(540);
 
-        // root.getChildren().add(0, map);
+        map.setPreserveRatio(true);
+
+        root.getChildren().add(0, map);
         primaryStage.setTitle("JavaFX PathTransition Test with SVG");
         primaryStage.setScene(new Scene(root, 671, 481));
 
@@ -133,20 +136,19 @@ public class Traff extends Application {
 
     }
 
-    
     public ArrayList<PathTransition> getAnimation(List vertex) {
 
         ArrayList<PathTransition> pTList = new ArrayList<>();
-        
-        vertex.forEach((e)->{
-            System.out.println(" the value of e is "+e.toString());
-        Path path = getTransformMatrix(e.toString());
-        PathTransition pT = new PathTransition(Duration.seconds(5), path, car);
 
-        pT.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
-        pT.setCycleCount(1);
-        pT.setRate(1);
-        pTList.add(pT);
+        vertex.forEach((e) -> {
+            System.out.println(" the value of e is " + e.toString());
+            Path path = getTransformMatrix(e.toString());
+            PathTransition pT = new PathTransition(Duration.seconds(5), path, car);
+
+            pT.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
+            pT.setCycleCount(1);
+            pT.setRate(1);
+            pTList.add(pT);
         });
         return pTList;
     }
@@ -157,10 +159,10 @@ public class Traff extends Application {
         int numOfTransition = pT.size();
 
         for (int i = 0; i < numOfTransition; i++) {
-            
+
             seq.getChildren().add(pT.get(i));
         }
-        
+        seq.setCycleCount(Timeline.INDEFINITE);
         seq.play();
     }
 
