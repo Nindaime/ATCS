@@ -161,8 +161,7 @@ public class JavaFXPathElementHandler implements PathHandler {
         lastX = x;
         lastY = y;
         MoveTo moveTo = new MoveTo(x, y);
-        System.out.println("moving to x abs"+x);
-        System.out.println("moving to y abs"+y);
+        
         moveTo.setAbsolute(true);
         path.getElements().add(moveTo);
     }
@@ -172,7 +171,7 @@ public class JavaFXPathElementHandler implements PathHandler {
         lastX = x;
         lastY = y;
         MoveTo moveTo = new MoveTo(x, y);
-        System.out.println("moving to x rel"+x);
+      
         moveTo.setAbsolute(false);
         path.getElements().add(moveTo);
     }
