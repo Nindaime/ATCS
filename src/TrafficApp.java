@@ -9,6 +9,7 @@ import javafx.animation.PathTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -27,11 +28,13 @@ import org.w3c.dom.svg.SVGDocument;
 
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 
-public class Traff extends Application {
-    
-    private static final int TOTAL_NUMBER_OF_CARS = 20;
+public class TrafficApp extends Application {
 
-    private static ImageView car;
+    public static ArrayList<ImageView> cars = new ArrayList<>();
+    private static final int TOTAL_NUMBER_OF_CARS = 20;
+    private static final long WAIT_TIME = 10000;
+
+    private Timer timer;
 
     public final static String[][] POSSIBLE_ROUTES = {{"L2", "L6"}, {"L2", "L10"}, {"L2", "L14"},
     {"L5", "L10"}, {"L5", "L14"}, {"L5", "L1"}, {"L9", "L14"},
@@ -55,37 +58,69 @@ public class Traff extends Application {
     public void start(Stage primaryStage) {
 
         Pane root = new Pane();
+        TrafficLightGroup group1 = new TrafficLightGroup(125, 194);
+        TrafficLightGroup group2 = new TrafficLightGroup(272, 194);
+        TrafficLightGroup group3 = new TrafficLightGroup(423, 194);
+        TrafficLightGroup group4 = new TrafficLightGroup(272, 90);
+        TrafficLightGroup group5 = new TrafficLightGroup(272, 300);
 
-        var pick = pickRandomPath();
-        var source = pick[0];
-        var destination = pick[1];
-
+        timer = new Timer();
 
 //        var source = "L13";
 //        var destination = "L10";
-
-        var c = DijkstraShortestPath.findPathBetween(CustomDirectedGraph.getDefaultEdges(), source, destination);
-
-        car = new ImageView(new Image(getClass().getResourceAsStream("img/red.png")));
-        car.setFitHeight(20);
-
-        car.setPreserveRatio(true);
-
-        root.getChildren().add(car);
         ImageView map = new ImageView(new Image(getClass().getResourceAsStream("img/road_v2.png")));
         map.setFitWidth(540);
 
         map.setPreserveRatio(true);
 
         root.getChildren().add(0, map);
+        addTrafficLightToRoot(group1, root);
+        addTrafficLightToRoot(group2, root);
+        addTrafficLightToRoot(group3, root);
+        addTrafficLightToRoot(group4, root);
+        addTrafficLightToRoot(group5, root);
+
         primaryStage.setTitle("JavaFX PathTransition Test with SVG");
         primaryStage.setScene(new Scene(root, 671, 481));
 
         primaryStage.show();
 
-        ArrayList<PathTransition> pTList = getAnimation(c.getVertexList());
-        playSequentialTransition(pTList);
+        TimerTask timerTask = new TimerTask() {
+            int count = 0;
 
+            @Override
+            public void run() {
+                if (count < TOTAL_NUMBER_OF_CARS) {
+
+                    count++;
+//                    System.out.println("the count is " + count);
+                    var pick = pickRandomPath();
+                    var source = pick[0];
+                    var destination = pick[1];
+                    var c = DijkstraShortestPath.findPathBetween(CustomDirectedGraph.getDefaultEdges(), source, destination);
+
+                    Car car = new Car(c);
+                    cars.add(car.getCar());
+                    Platform.runLater(() -> {
+                        root.getChildren().add(car.getCar());
+                        ArrayList<PathTransition> pTList = getAnimation(car.getVertexList(), car.getCar());
+                        playSequentialTransition(pTList);
+                    });
+
+                    return;
+                }
+                this.cancel();
+            }
+        };
+//        this.timer.schedule(timerTask, 0, WAIT_TIME);
+        timer.scheduleAtFixedRate(timerTask, 0, WAIT_TIME);
+
+    }
+
+    private void addTrafficLightToRoot(TrafficLightGroup group, Pane root) {
+        group.getTrafficLights().forEach((e) -> {
+            root.getChildren().add(e.getTrafficLight());
+        });
     }
 
     public Path getTransformMatrix(String route) {
@@ -136,17 +171,22 @@ public class Traff extends Application {
 
     }
 
-    public ArrayList<PathTransition> getAnimation(List vertex) {
+    @Override
+    public void stop() throws Exception {
+        super.stop(); //To change body of generated methods, choose Tools | Templates.
+        timer.cancel();
+    }
+
+    public ArrayList<PathTransition> getAnimation(List vertex, ImageView car) {
 
         ArrayList<PathTransition> pTList = new ArrayList<>();
 
         vertex.forEach((e) -> {
-            System.out.println(" the value of e is " + e.toString());
+            
             Path path = getTransformMatrix(e.toString());
             PathTransition pT = new PathTransition(Duration.seconds(5), path, car);
 
             pT.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
-            pT.setCycleCount(1);
             pT.setRate(1);
             pTList.add(pT);
         });
@@ -162,8 +202,12 @@ public class Traff extends Application {
 
             seq.getChildren().add(pT.get(i));
         }
-        seq.setCycleCount(Timeline.INDEFINITE);
+        seq.setCycleCount(1);
         seq.play();
+
+        seq.setOnFinished((e) -> {
+            //
+        });
     }
 
 }

@@ -3,6 +3,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -23,12 +26,51 @@ public class TrafficLight {
     private boolean isGreen;// should be observable
     private boolean isYellow;
     private int numberOfCarsInSensorZone;// should be observable
+    private Circle circle;
 
     private List<PropertyChangeListener> listener = new ArrayList<PropertyChangeListener>();
 
-    public TrafficLight(double x, double y, double width, double heigth) {
+    public TrafficLight(double x, double y) {
         // these dimensions are not particularly for the traffic light but for 
-        // the sensor zones. 
+        // the sensor zones.
+        circle = new Circle();
+        circle.setCenterX(x);
+        circle.setCenterY(y);
+        circle.setFill(Color.BLUE);
+        circle.setRadius(3);
+        
+        setLightColor("red");
+
+    }
+
+    public Circle getTrafficLight() {
+        return circle;
+    }
+
+    public void setLightColor(String color) {
+
+        Paint paint;
+
+        if (null == color) {
+            paint = Color.RED;
+        } else {
+            switch (color) {
+                case "green":
+                    paint = Color.GREEN;
+                    break;
+                case "yellow":
+                    paint = Color.YELLOW;
+                    break;
+                case "red":
+                    paint = Color.YELLOW;
+                    break;
+                default:
+                    paint = Color.RED;
+                    break;
+            }
+        }
+
+        circle.setFill(paint);
     }
 
     public int getNumberCarsInSensorZone() {
