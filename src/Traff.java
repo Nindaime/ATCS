@@ -28,19 +28,13 @@ public class Traff extends Application {
 
     private static ImageView car;
 
-    public final static String[][] POSSIBLE_ROUTES = {
-        {"L2", "L6"}, {"L2", "L10"},
-        {"L2", "L14"}, {"L2", "L1"},
-        {"L5", "L6"}, {"L5", "L10"},
-        {"L5", "L14"}, {"L5", "L1"},
-        {"L9", "L10"}, {"L9", "L14"},
-        {"L9", "L1"}, {"L9", "L6"},
-        {"L13", "L14"}, {"L13", "L1"},
-        {"L13", "L6"}, {"L13", "L10"}};
+    public final static String[][] POSSIBLE_ROUTES = { { "L2", "L6" }, { "L2", "L10" }, { "L2", "L14" },
+            { "L5", "L10" }, { "L5", "L14" }, { "L5", "L1" }, { "L9", "L14" },
+            { "L9", "L1" }, { "L9", "L6" }, { "L13", "L1" }, { "L13", "L6" }, { "L13", "L10" } };
 
     public static String[] pickRandomPath() {
 
-        return POSSIBLE_ROUTES[(int) (Math.random() * 15)];
+        return POSSIBLE_ROUTES[(int) (Math.random() * 11)];
 
     }
 
@@ -86,6 +80,7 @@ public class Traff extends Application {
         directedGraph.addVertex("L23toL19");
         directedGraph.addVertex("L5");
         directedGraph.addVertex("L6");
+        directedGraph.addVertex("L7");
         directedGraph.addVertex("L4toL23");
         directedGraph.addVertex("L4toL6");
         directedGraph.addVertex("L7toL6");
@@ -232,65 +227,68 @@ public class Traff extends Application {
 
         directedGraph.addEdge("L12H", "L12toL16");
         directedGraph.addEdge("L12toL16", "L16H");
-//        directedGraph.addEdge("L16H", "L16V");
+        // directedGraph.addEdge("L16H", "L16V");
 
         directedGraph.addEdge("L9", "L9toL12");
 
-//        directedGraph.addEdge("L16V", "L16toL1");
+        // directedGraph.addEdge("L16V", "L16toL1");
         directedGraph.addEdge("L16toL1", "L1");
-//        directedGraph.addEdge("L16V", "L16toL17");
+        // directedGraph.addEdge("L16V", "L16toL17");
         directedGraph.addEdge("L16toL17", "L17");
         directedGraph.addEdge("L17", "L17toL21");
         directedGraph.addEdge("L17toL21", "L21");
 
         directedGraph.addEdge("L9", "L9toL7");
         directedGraph.addEdge("L9toL7", "L7V");
-        // directedGraph.addEdge("L9toL20", "");
+        directedGraph.addEdge("L9toL20", "L20");
+        directedGraph.addEdge("L9", "L9toL12");
+        directedGraph.addEdge("L9toL12", "L12V");
+        directedGraph.addEdge("L12V", "L12H");
+        directedGraph.addEdge("L12H", "L12toL14");
+        directedGraph.addEdge("L12toL14", "L14");
+        directedGraph.addEdge("L17", "L17toL24");
+        directedGraph.addEdge("L17toL24", "L24");
+        // directedGraph.addEdge("L24", "L24toL3");
+        // directedGraph.addEdge("L24toL3", "L3");
+        // directedGraph.addEdge("L24", "L24toL18");
+        // directedGraph.addEdge("L24toL18", "L18");
+        // directedGraph.addEdge("L5", "L5toL23");
+        directedGraph.addEdge("L23toL21", "L21");
+        directedGraph.addEdge("L22", "L22toL24");
+        directedGraph.addEdge("L22toL24", "L24");
+        directedGraph.addEdge("L24", "L24toL6");
+        directedGraph.addEdge("L24toL6", "L6");
+        directedGraph.addEdge("L23", "L23toL21");
+        directedGraph.addEdge("L23toL21", "L21");
+        directedGraph.addEdge("L23", "L23toL19");
+        directedGraph.addEdge("L23toL19", "L19");
+        directedGraph.addEdge("L19", "L19toL10");
         // directedGraph.addEdge("", "");
+        directedGraph.addEdge("L22", "L22toL18");
+        directedGraph.addEdge("L22toL18", "L18");
+        directedGraph.addEdge("L18", "L18toL1");
+        directedGraph.addEdge("L18toL1", "L1");
         // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
-        // directedGraph.addEdge("", "");
+        directedGraph.addEdge("L7toL6", "L6");
+        directedGraph.addEdge("L7H", "L7toL6");
+        directedGraph.addEdge("L9", "L7V");
 
         var pick = pickRandomPath();
-//        var source =pick[0];
-//        var destination =pick[1];
-        var source = "L9";
-        var destination = "L14";
+        var source = pick[0];
+        var destination = pick[1];
+        // var source = "L5";
+        // var destination = "L10";
         System.out.println("Start " + source);
         System.out.println("End " + destination);
 
-//        List<DefaultEdge> sp = DijkstraShortestPath.findPathBetween(directedGraph, source, destination);
-        System.out.println("this is the path: " + DijkstraShortestPath.findPathBetween(directedGraph, source, destination));
-//System.out.println("this is the path: "+DijkstraShortestPath.findPathBetween(directedGraph, "L13", "L22toL24"));
-        //directedGraph.addEdge("", "");
-        
+        // List<DefaultEdge> sp = DijkstraShortestPath.findPathBetween(directedGraph,
+        // source, destination);
+        System.out.println(
+                "this is the path: " + DijkstraShortestPath.findPathBetween(directedGraph, source, destination));
+        // System.out.println("this is the path:
+        // "+DijkstraShortestPath.findPathBetween(directedGraph, "L13", "L22toL24"));
+        // directedGraph.addEdge("", "");
+
         /*
          * directedGraph.addEdge("", ""); directedGraph.addEdge("", "");
          * directedGraph.addEdge("", ""); directedGraph.addEdge("", "");
@@ -317,8 +315,9 @@ public class Traff extends Application {
         root.getChildren().add(path);
 
         root.getChildren().add(car);
-//        ImageView map = new ImageView(new Image(getClass().getResourceAsStream("img/road_v2.png")));
-//        map.setFitWidth(540);
+        // ImageView map = new ImageView(new
+        // Image(getClass().getResourceAsStream("img/road_v2.png")));
+        // map.setFitWidth(540);
         // ImageView map = new ImageView(new
         // Image(getClass().getResourceAsStream("img/road_v2.png")));
         // map.setFitWidth(540);
@@ -336,8 +335,7 @@ public class Traff extends Application {
     public Path getTransformMatrix(String route) {
 
         Path path;
-    
-        
+
         String pathData = "";
         String transformMatrix = "";
         try {
@@ -346,7 +344,8 @@ public class Traff extends Application {
             SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(xmlParser);
 
             String uri = "FILE:\\Users\\User01\\Documents\\NetBeansProjects\\ATCS\\src\\img\\ATCS_DrivePath.svg";
-            FileInputStream fI = new FileInputStream("C:\\Users\\User01\\Documents\\NetBeansProjects\\ATCS\\src\\img\\ATCS_DrivePath.svg");
+            FileInputStream fI = new FileInputStream(
+                    "C:\\Users\\User01\\Documents\\NetBeansProjects\\ATCS\\src\\img\\ATCS_DrivePath.svg");
 
             SVGDocument doc = f.createSVGDocument(uri);
             Element element = doc.getElementById(route);
@@ -361,24 +360,19 @@ public class Traff extends Application {
         String tempTransformMatrix2 = tempTransformMatrix.replace(")", "");
 
         PathParser parser = new PathParser();
-//        SAXParser p = new SAXParser();
+        // SAXParser p = new SAXParser();
         JavaFXPathElementHandler handler = new JavaFXPathElementHandler("track");
         parser.setPathHandler(handler);
         parser.parse(pathData);
 
         path = handler.getPath();
-        //path.getElements().forEach(System.out::println);
+        // path.getElements().forEach(System.out::println);
 
         var a = tempTransformMatrix2.split(",");
 
-        path.getTransforms().add(Transform.affine(
-                Double.parseDouble(a[0]),
-                Double.parseDouble(a[1]),
-                Double.parseDouble(a[2]),
-                Double.parseDouble(a[3]),
-                Double.parseDouble(a[4]),
-                Double.parseDouble(a[5])
-        ));
+        path.getTransforms()
+                .add(Transform.affine(Double.parseDouble(a[0]), Double.parseDouble(a[1]), Double.parseDouble(a[2]),
+                        Double.parseDouble(a[3]), Double.parseDouble(a[4]), Double.parseDouble(a[5])));
 
         path.setStroke(Color.BLACK);
 
@@ -397,7 +391,7 @@ public class Traff extends Application {
 
         pT.setOnFinished((e) -> {
             playAnimation(getTransformMatrix("L13toL11"));
-            //System.out.println("we have finished playing the animation");
+            // System.out.println("we have finished playing the animation");
         });
 
     }
