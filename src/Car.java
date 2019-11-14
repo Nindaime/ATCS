@@ -1,12 +1,9 @@
 
-import java.util.ArrayList;
-import javafx.animation.TranslateTransition;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
+import java.util.List;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
-import javafx.util.Duration;
+import org.jgrapht.GraphPath;
+import org.jgrapht.graph.DefaultEdge;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -20,24 +17,15 @@ import javafx.util.Duration;
 public class Car {
 
 //    private final Pane pane;
-    
+    private ImageView car;
+    private GraphPath<String,DefaultEdge> route;
    //expose the list of all cars
 
-    public Car(ArrayList<Street> route) {
-        ImageView imageView = new ImageView();
-        imageView.setFitWidth(30);
-        imageView.setFitHeight(30);
-        imageView.setImage(new Image(getClass().getResourceAsStream("img\\red.png")));
-
-        //this.route = route;
-        //numOfStreets = route.size();
-        //currentStreetIndex = 0;
-        //currentStreet = route.get(currentStreetIndex);
-        //this.pane = new Pane();
-        //this.pane.setLayoutX(currentStreet.getX());
-        //this.pane.setLayoutY(currentStreet.getY());
-
-        //this.pane.getChildren().add(imageView);
+    public Car(GraphPath<String,DefaultEdge> route) {
+        car = new ImageView(new Image(getClass().getResourceAsStream("img/red.png")));
+        car.setFitHeight(20);
+        car.setPreserveRatio(true);
+this.route = route;
         
         
         // get the closest Traffic Light group and pick one of the lights depending on direction
@@ -47,7 +35,18 @@ public class Car {
     // it true play
     // if false stop
 
+    public ImageView getCar(){
     
+        return car;
+    }
+    
+    public List getVertexList(){
+        return route.getVertexList();
+    }
+    
+    public List getEdgeList(){
+        return route.getEdgeList();
+    }
     public void stop(){}
     public void start(){}
     
