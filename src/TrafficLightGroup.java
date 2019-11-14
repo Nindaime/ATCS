@@ -39,19 +39,16 @@ public class TrafficLightGroup implements PropertyChangeListener {
 //            }
 //        });
         northLight.addChangeListener(this);
-        var a = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(10000);
-                    northLight.setIsGreen(true);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(TrafficLightGroup.class.getName()).log(Level.SEVERE, null, ex);
-                }
+        new Thread(() -> {
+            try {
+                Thread.sleep(10000);
+                northLight.setIsGreen(true);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(TrafficLightGroup.class.getName()).log(Level.SEVERE, null, ex);
             }
-        };
+        }).run();
         
-        a.run();
+//        a.run();
     }
 
     // observe all the cars that are in each zone after after isGreen

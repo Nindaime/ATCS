@@ -247,7 +247,7 @@ public class Traff extends Application {
         String tempTransformMatrix1 = transformMatrix.replace("matrix(", "");
         String tempTransformMatrix2 = tempTransformMatrix1.replace(")", "");
 
-        var a = tempTransformMatrix2.split(",");
+        String[] a = tempTransformMatrix2.split(",");
         path.getTransforms().add(Transform.affine(
                 Double.parseDouble(a[0]),
                 Double.parseDouble(a[1]),
