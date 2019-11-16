@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.animation.PathTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
@@ -30,9 +32,12 @@ import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 
 public class TrafficApp extends Application {
 
-    public static ArrayList<ImageView> cars = new ArrayList<>();
-    private static final int TOTAL_NUMBER_OF_CARS = 20;
-    private static final long WAIT_TIME = 10000;
+    public static ArrayList<Car> cars = new ArrayList<>();
+    public static ArrayList<TrafficLightGroup> trafficLightGroup = new ArrayList<>();
+    private static final int TOTAL_NUMBER_OF_CARS = 3;
+    private static final long ADD_CAR_WAIT_TIME = 3000;
+    private static final long CHECK_SENSOR_AREA_TIME = 5000;
+    private static final long CHECK_CAR_PROXIMITY_WAIT_TIME = 2000;
 
     private Timer timer;
 
@@ -58,11 +63,23 @@ public class TrafficApp extends Application {
     public void start(Stage primaryStage) {
 
         Pane root = new Pane();
+        // Four Traffic lights in each group
         TrafficLightGroup group1 = new TrafficLightGroup(125, 194);
         TrafficLightGroup group2 = new TrafficLightGroup(272, 194);
         TrafficLightGroup group3 = new TrafficLightGroup(423, 194);
         TrafficLightGroup group4 = new TrafficLightGroup(272, 90);
         TrafficLightGroup group5 = new TrafficLightGroup(272, 300);
+
+        trafficLightGroup.add(group1);
+        trafficLightGroup.add(group2);
+        trafficLightGroup.add(group3);
+        trafficLightGroup.add(group4);
+        trafficLightGroup.add(group5);
+        
+        
+//        trafficLightGroup.forEach(e->{
+//            e.getEast();
+//        });
 
         timer = new Timer();
 
@@ -85,11 +102,18 @@ public class TrafficApp extends Application {
 
         primaryStage.show();
 
-        TimerTask timerTask = new TimerTask() {
+        TimerTask addCarTask = new TimerTask() {
             int count = 0;
 
             @Override
             public void run() {
+                if (cars.size() > 0) {
+                    Car c = cars.get(0);
+//                    System.out.println("this is the x value of the car" + c.getSize());
+//                    System.out.println("this is the sensor area"+group1.getEast().getDimension());
+                    
+                }
+
                 if (count < TOTAL_NUMBER_OF_CARS) {
 
                     count++;
@@ -100,11 +124,12 @@ public class TrafficApp extends Application {
                     var c = DijkstraShortestPath.findPathBetween(CustomDirectedGraph.getDefaultEdges(), source, destination);
 
                     Car car = new Car(c);
-                    cars.add(car.getCar());
+                    cars.add(car);
+
                     Platform.runLater(() -> {
                         root.getChildren().add(car.getCar());
-                        ArrayList<PathTransition> pTList = getAnimation(car.getVertexList(), car.getCar());
-                        playSequentialTransition(pTList);
+                        ArrayList<PathTransition> pTList = getAnimationPaths(car.getVertexList(), car.getCar());
+                        playSequentialTransition(pTList, car);
                     });
 
                     return;
@@ -112,14 +137,45 @@ public class TrafficApp extends Application {
                 this.cancel();
             }
         };
-//        this.timer.schedule(timerTask, 0, WAIT_TIME);
-        timer.scheduleAtFixedRate(timerTask, 0, WAIT_TIME);
+
+        TimerTask checkSensorAreaTask = new TimerTask() {
+
+            @Override
+            public void run() {
+               
+                //                if (cars.size() == TOTAL_NUMBER_OF_CARS) {
+                //                    this.cancel();
+                //                }
+                
+                trafficLightGroup.forEach( group->{
+                    try {
+                        group.checkTrafficLight();
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(TrafficApp.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                });
+
+            }
+        };
+
+        TimerTask checkCarProximityTask = new TimerTask() {
+            int count = 0;
+
+            @Override
+            public void run() {
+
+            }
+        };
+//        this.timer.schedule(checkSensorAreaTask, 0, CHECK_SENSOR_AREA_TIME);
+        timer.scheduleAtFixedRate(addCarTask, 0, ADD_CAR_WAIT_TIME);
+        timer.schedule(checkSensorAreaTask, 0, CHECK_SENSOR_AREA_TIME);
 
     }
 
     private void addTrafficLightToRoot(TrafficLightGroup group, Pane root) {
         group.getTrafficLights().forEach((e) -> {
             root.getChildren().add(e.getTrafficLight());
+            root.getChildren().add(e.getSensor());
         });
     }
 
@@ -175,25 +231,30 @@ public class TrafficApp extends Application {
     public void stop() throws Exception {
         super.stop(); //To change body of generated methods, choose Tools | Templates.
         timer.cancel();
+       
     }
 
-    public ArrayList<PathTransition> getAnimation(List vertex, ImageView car) {
+    public ArrayList<PathTransition> getAnimationPaths(List vertex, Pane car) {
 
+        // Get the differenft paths of the route and add to an arraylist
         ArrayList<PathTransition> pTList = new ArrayList<>();
 
         vertex.forEach((e) -> {
-            
-            Path path = getTransformMatrix(e.toString());
-            PathTransition pT = new PathTransition(Duration.seconds(5), path, car);
 
+            Path path = getTransformMatrix(e.toString());
+            PathTransition pT = new PathTransition(Duration.seconds(9), path);
+
+//            car.layoutXProperty().bind(path.translateXProperty());
             pT.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
             pT.setRate(1);
+
             pTList.add(pT);
         });
         return pTList;
     }
 
-    public void playSequentialTransition(List<PathTransition> pT) {
+    // play the list on paths in a sequence
+    public void playSequentialTransition(List<PathTransition> pT, Car car) {
 
         SequentialTransition seq = new SequentialTransition();
         int numOfTransition = pT.size();
@@ -203,11 +264,9 @@ public class TrafficApp extends Application {
             seq.getChildren().add(pT.get(i));
         }
         seq.setCycleCount(1);
-        seq.play();
 
-        seq.setOnFinished((e) -> {
-            //
-        });
+        car.setSequenceTransition(seq);
+
     }
 
 }
