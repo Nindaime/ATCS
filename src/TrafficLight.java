@@ -3,9 +3,12 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import javafx.geometry.Bounds;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -19,27 +22,49 @@ import javafx.scene.shape.Circle;
 public class TrafficLight {
 
     private String isOn;
-    private double x1;
-    private double y1;
-    private double x2;
-    private double y2;
+    private String name;
     private boolean isGreen;// should be observable
     private boolean isYellow;
     private int numberOfCarsInSensorZone;// should be observable
-    private Circle circle;
+    private final Circle circle;
+    private SensorArea sensorArea;
 
-    private List<PropertyChangeListener> listener = new ArrayList<PropertyChangeListener>();
+   
 
-    public TrafficLight(double x, double y) {
+    public TrafficLight(double x, double y, TrafficLightDirection direction) {
         // these dimensions are not particularly for the traffic light but for 
         // the sensor zones.
+        double newX = x;
+        double newY = y;
+
+        int distanceFromCenter = 7;
+        switch (direction) {
+            case NORTH:
+                newY = y - distanceFromCenter;
+                sensorArea = new SensorArea(newX - 25, newY - 60, 25, 50);
+                name = "north";
+                break;
+            case SOUTH:
+                newY = y + distanceFromCenter;
+                sensorArea = new SensorArea(newX, newY - 10 + 24, 30, 50);
+                name = "south";
+                break;
+            case EAST:
+                newX = x + distanceFromCenter;
+                sensorArea = new SensorArea(newX + 14, newY - 27, 40, 30);
+                name = "east";
+                break;
+            case WEST:
+                newX = x - distanceFromCenter;
+                sensorArea = new SensorArea(newX - 60, newY + 8, 40, 25);
+                name = "west";
+                break;
+        }
         circle = new Circle();
-        circle.setCenterX(x);
-        circle.setCenterY(y);
+        circle.setCenterX(newX);
+        circle.setCenterY(newY);
         circle.setFill(Color.BLUE);
         circle.setRadius(3);
-        
-        setLightColor("red");
 
     }
 
@@ -47,7 +72,70 @@ public class TrafficLight {
         return circle;
     }
 
-    public void setLightColor(String color) {
+    public String getName() {
+        return name;
+    }
+
+    public Rectangle getSensor() {
+
+        return sensorArea;
+    }
+
+    private void startCar(ArrayList<Car> trafficCars) {
+
+        ArrayList<Car> cars = new ArrayList<>();
+        cars.addAll(trafficCars);
+
+        cars.forEach((Car car) -> {
+
+            if (car.isSequenceSet()) {
+                var x = car.getX() + car.getWidth() / 2;
+                var y = car.getY() + car.getHeight() / 2;
+
+                boolean a = sensorArea.getLayoutX() < x && sensorArea.getLayoutY() < y
+                        && sensorArea.getLayoutX() + sensorArea.getWidth() > x
+                        && sensorArea.getLayoutY() + sensorArea.getHeight() > y;
+
+                if (a && car.isStopped()) {
+
+                    car.start();
+                    isGreen = true;
+
+                }
+            }
+
+        });
+    }
+
+    private void stopCar(ArrayList<Car> trafficCars) {
+
+        ArrayList<Car> cars = new ArrayList<>();
+//        cars.addAll(TrafficApp.cars);
+        cars.addAll(trafficCars);
+
+        cars.forEach((Car car) -> {
+
+            if (car.isSequenceSet()) {
+                var x = car.getX() + car.getWidth() / 2;
+                var y = car.getY() + car.getHeight() / 2;
+
+                boolean a = sensorArea.getLayoutX() < x && sensorArea.getLayoutY() < y
+                        && sensorArea.getLayoutX() + sensorArea.getWidth() > x
+                        && sensorArea.getLayoutY() + sensorArea.getHeight() > y;
+
+                if (a && !car.isStopped()) {
+
+                    car.stop();
+                    isGreen = false;
+                    System.out.println("Stopping car" + this.getName());
+
+                }
+            }
+
+        });
+    }
+
+    public void setLightColor(String color,ArrayList<Car> trafficCars) {
 
         Paint paint;
 
@@ -57,15 +145,23 @@ public class TrafficLight {
             switch (color) {
                 case "green":
                     paint = Color.GREEN;
+
+                    startCar(trafficCars);
                     break;
                 case "yellow":
                     paint = Color.YELLOW;
+
+                    stopCar(trafficCars);
                     break;
                 case "red":
-                    paint = Color.YELLOW;
+                    paint = Color.RED;
+
+                    stopCar(trafficCars);
                     break;
                 default:
                     paint = Color.RED;
+
+                    stopCar(trafficCars);
                     break;
             }
         }
@@ -73,31 +169,34 @@ public class TrafficLight {
         circle.setFill(paint);
     }
 
-    public int getNumberCarsInSensorZone() {
-        // get all cars from the main app
+    public int getNumberCarsInSensorZone(ArrayList<Car> c) {
 
-        // get cars in the dimension for the zone;
-        // return the .number of cars in the zone
-        // if 20seconds has past or number of cars in zone is zero
-        // set isGreen to false
-        return 1;
-    }
+        ArrayList<Car> cars = new ArrayList<>();
+        cars.addAll(c);
+        AtomicInteger counter = new AtomicInteger();
 
-    public void setIsGreen(boolean value) {
-        if (!value) {
+        cars.forEach((Car car) -> {
 
-            return;
-        }
-        notifyListeners("isGreen", this.isGreen, this.isGreen = value);
+            if (car.isSequenceSet()) {
+                var x = car.getX() + car.getWidth() / 2;
+                var y = car.getY() + car.getHeight() / 2;
 
-        while (value) {
+                boolean a = sensorArea.getLayoutX() < x && sensorArea.getLayoutY() < y
+                        && sensorArea.getLayoutX() + sensorArea.getWidth() > x
+                        && sensorArea.getLayoutY() + sensorArea.getHeight() > y;
 
-            if (getNumberCarsInSensorZone() == 0) {
-                setIsGreen(false);
-                break;
+                if (a) {
+
+                    counter.getAndIncrement();
+                    if (!isGreen) {
+                        car.stop();
+                    }
+
+                }
             }
 
-        }
+        });
+        return counter.get();
     }
 
     public void setIsYellow(boolean value) {
@@ -105,16 +204,19 @@ public class TrafficLight {
 
     }
 
-    private void notifyListeners(String property, boolean oldValue, boolean newValue) {
 
-        for (PropertyChangeListener name : listener) {
-//            System.out.println("one of the values has changed");
-            name.propertyChange(new PropertyChangeEvent(this, property, oldValue, newValue));
+    private class SensorArea extends Rectangle {
+//        double x,y;
+
+        public SensorArea(double x, double y, double width, double height) {
+            this.setLayoutX(x);
+            this.setLayoutY(y);
+            this.setWidth(width);
+            this.setHeight(height);
+            this.setFill(Color.BLACK);
+
         }
-    }
 
-    public void addChangeListener(PropertyChangeListener newListener) {
-        listener.add(newListener);
     }
 
 }

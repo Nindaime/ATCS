@@ -1,39 +1,6 @@
-import java.io.FileInputStream;
-import java.io.IOException;
-import javafx.animation.PathTransition;
-import javafx.animation.Timeline;
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Path;
-import javafx.scene.transform.Transform;
-import javafx.stage.Stage;
-import javafx.util.Duration;
-import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
-import org.apache.batik.parser.PathParser;
-import org.apache.batik.util.XMLResourceDescriptor;
-
-import org.w3c.dom.Element;
-import org.w3c.dom.svg.SVGDocument;
-
-import org.jgrapht.*;
-import org.jgrapht.graph.*;
-import org.jgrapht.io.*;
-import org.jgrapht.traverse.*;
-
-
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
 /**
  *

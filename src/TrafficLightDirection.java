@@ -1,6 +1,3 @@
-
-import javafx.collections.ObservableList;
-
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -11,8 +8,6 @@ import javafx.collections.ObservableList;
  *
  * @author User01
  */
-public interface TrafficLightGroup {
-    
-    public ObservableList<TrafficLight> getTrafficLights();
-    
+public enum TrafficLightDirection {
+    NORTH,WEST,EAST,SOUTH
 }

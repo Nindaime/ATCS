@@ -1,7 +1,12 @@
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import javafx.animation.SequentialTransition;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
+import javafx.util.Duration;
 import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DefaultEdge;
 
@@ -16,39 +21,120 @@ import org.jgrapht.graph.DefaultEdge;
  */
 public class Car {
 
-//    private final Pane pane;
-    private ImageView car;
-    private GraphPath<String,DefaultEdge> route;
-   //expose the list of all cars
+    private Pane pane;
+    private ImageView image;
+    private GraphPath<String, DefaultEdge> route;
+    private SequentialTransition seq;
+    private static final double WIDTH = 10;
+    private static final double HEIGHT = 10;
+    private boolean isStopped = false;
+    private static final long CHECK_CAR_PROXIMITY_WAIT_TIME = 2000;
+    private long pauseTime = 0;
+    private Duration playTime;
+    long pauseStartTime;
 
-    public Car(GraphPath<String,DefaultEdge> route) {
-        car = new ImageView(new Image(getClass().getResourceAsStream("img/red.png")));
-        car.setFitHeight(20);
-        car.setPreserveRatio(true);
-this.route = route;
-        
-        
+    private Timer timer = new Timer();
+    private static ArrayList<Car> cars = TrafficApp.cars;
+    private boolean canCancelTimer = false;
+
+    //expose the list of all cars
+    public Car(GraphPath<String, DefaultEdge> route) {
+        image = new ImageView(new Image(getClass().getResourceAsStream("img/red.png")));
+        image.setFitHeight(HEIGHT);
+        image.setPreserveRatio(true);
+        pane = new Pane();
+        pane.setPrefSize(WIDTH, HEIGHT);
+        pane.getChildren().add(image);
+        this.route = route;
+
         // get the closest Traffic Light group and pick one of the lights depending on direction
+        pauseStartTime = System.currentTimeMillis();
     }
-    
+
     // listener to get if the light is green
     // it true play
     // if false stop
+    public Pane getCar() {
 
-    public ImageView getCar(){
-    
-        return car;
+        return pane;
     }
-    
-    public List getVertexList(){
+
+    public double getSize() {
+        return seq.getNode().layoutXProperty().get();
+    }
+
+    public double getX() {
+//        System.out.println("this is the sequence" + seq);
+        return seq.getNode().getTranslateX();
+    }
+
+    public double getY() {
+        return seq.getNode().getTranslateY();
+    }
+
+    public double getWidth() {
+//        System.out.println("this is the sequence" + seq);
+        return WIDTH;
+    }
+
+    public double getHeight() {
+        return HEIGHT;
+    }
+
+    public List getVertexList() {
         return route.getVertexList();
     }
-    
-    public List getEdgeList(){
+
+    public List getEdgeList() {
         return route.getEdgeList();
     }
-    public void stop(){}
-    public void start(){}
-    
+
+    public boolean isSequenceSet() {
+//        System.out.println("seq"+seq);
+        return seq != null;
+    }
+
+    public void setSequenceTransition(SequentialTransition seq) {
+        this.seq = seq;
+
+        seq.setOnFinished((e) -> {
+            playTime = seq.getCycleDuration();
+            System.out.println("total time played " +playTime);
+            System.out.println("total time paused " +pauseTime);
+
+        });
+
+        seq.setNode(pane);
+        start();
+    }
+
+    public long getTotalDelayTime() {
+        return pauseTime;
+    }
+
+    public Duration getTotalPlayTime() {
+        return playTime;
+    }
+
+    public void stop() {
+
+        seq.pause();
+        pauseStartTime = System.currentTimeMillis();
+
+        isStopped = true;
+
+    }
+
+    public void start() {
+        seq.play();
+        pauseTime += (System.currentTimeMillis() - pauseStartTime);
+        System.out.println("total time paused " +pauseTime);
+        isStopped = false;
+
+    }
+
+    public boolean isStopped() {
+        return isStopped;
+    }
 
 }
