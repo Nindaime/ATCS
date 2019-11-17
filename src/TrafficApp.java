@@ -7,7 +7,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import javafx.animation.PathTransition;
 import javafx.animation.SequentialTransition;
-import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -22,6 +21,7 @@ import javafx.util.Duration;
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.parser.PathParser;
 import org.apache.batik.util.XMLResourceDescriptor;
+import org.jgrapht.GraphPath;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
@@ -94,10 +94,10 @@ public class TrafficApp extends Application {
 
                     count++;
 //                    System.out.println("the count is " + count);
-                    var pick = pickRandomPath();
-                    var source = pick[0];
-                    var destination = pick[1];
-                    var c = DijkstraShortestPath.findPathBetween(CustomDirectedGraph.getDefaultEdges(), source, destination);
+                    String[] pick = pickRandomPath(); 
+                    String source = pick[0];
+                    String destination = pick[1];
+                    GraphPath c = DijkstraShortestPath.findPathBetween(CustomDirectedGraph.getDefaultEdges(), source, destination);
 
                     Car car = new Car(c);
                     cars.add(car.getCar());
@@ -159,7 +159,7 @@ public class TrafficApp extends Application {
         path = handler.getPath();
         // path.getElements().forEach(System.out::println);
 
-        var a = tempTransformMatrix2.split(",");
+        String[] a = tempTransformMatrix2.split(",");
 
         path.getTransforms()
                 .add(Transform.affine(Double.parseDouble(a[0]), Double.parseDouble(a[1]), Double.parseDouble(a[2]),
