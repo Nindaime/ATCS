@@ -45,11 +45,11 @@ public class TrafficApp extends Application {
     private static final long ADD_CAR_WAIT_TIME = 3000;
     private static final long CHECK_SENSOR_AREA_TIME = 3000;
     private static final long CHECK_CAR_PROXIMITY_WAIT_TIME = 2000;
-    private static final int SECOND_MAP_OFFSET = 600;
+    private static final int SECOND_MAP_OFFSET = 800;
 
     private LineChart<String, Number> lineChart;
     private Timer timer;
-
+    private Pane root;
     public final static String[][] POSSIBLE_ROUTES = {{"L2", "L6"}, {"L2", "L10"}, {"L2", "L14"},
     {"L5", "L10"}, {"L5", "L14"}, {"L5", "L1"}, {"L9", "L14"},
     {"L9", "L1"}, {"L9", "L6"}, {"L13", "L1"}, {"L13", "L6"}, {"L13", "L10"}};
@@ -67,8 +67,8 @@ public class TrafficApp extends Application {
     }
 
     public long getAverageTravelTime(ArrayList<Car> cars) {
-        double sum = 0;
-        sum = cars.stream().map((car) -> car.getTotalPlayTime().toSeconds()).reduce(sum, (accumulator, _item) -> accumulator + _item);
+        long sum = 0;
+        sum = cars.stream().map((car) -> car.getTotalPlayTime()).reduce(sum, (accumulator, _item) -> accumulator + _item);
         return (long) (sum / cars.size());
     }
 
@@ -105,20 +105,22 @@ public class TrafficApp extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-        Pane root = new Pane();
+        root = new Pane();
         // initialize line graph
         final CategoryAxis xAxis = new CategoryAxis();
         final NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel("Traffic Light");
         lineChart = new LineChart<>(xAxis, yAxis);
-        lineChart.setLayoutX(0);
-        lineChart.setLayoutY(300);
+        lineChart.setLayoutX(500);
+        lineChart.setLayoutY(400);
+        lineChart.setPrefSize(350, 350);
 
         timer = new Timer();
 
         ImageView map = new ImageView(new Image(getClass().getResourceAsStream("img/road_v2.png")));
         ImageView map2 = new ImageView(new Image(getClass().getResourceAsStream("img/road_v2.png")));
-        Button button = new Button("Show Map");
+        Button graphButton = new Button("Show Graph");
+        Button simulateAnimationButton = new Button("Simulate Animation");
 
         // for the intelligent group
         IntelligentLightGroup group1 = new IntelligentLightGroup(125, 194);
@@ -146,8 +148,6 @@ public class TrafficApp extends Application {
         trafficLightGroup2.add(group9);
         trafficLightGroup2.add(group10);
 
-        
-
         map.setFitWidth(540);
         map2.setFitWidth(540);
 
@@ -156,16 +156,27 @@ public class TrafficApp extends Application {
 
         map2.setLayoutX(SECOND_MAP_OFFSET);
 
-        button.setLayoutX(20);
-        button.setLayoutY(500);
-        button.setOnAction(e -> {
+        graphButton.setLayoutX(620);
+        graphButton.setLayoutY(200);
+
+        simulateAnimationButton.setLayoutX(600);
+        simulateAnimationButton.setLayoutY(100);
+        graphButton.setOnAction(e -> {
             drawGraph();
             root.getChildren().add(4, lineChart);
         });
 
+        simulateAnimationButton.setOnAction(e -> {
+            drawGraph();
+            cars.clear();
+            cars2.clear();
+            generateTrafficAnimation();
+        });
+
         root.getChildren().add(0, map);
         root.getChildren().add(1, map2);
-        root.getChildren().add(2, button);
+        root.getChildren().add(2, graphButton);
+        root.getChildren().add(3, simulateAnimationButton);
 
         addTrafficLightToRoot(group1, root);
         addTrafficLightToRoot(group2, root);
@@ -182,7 +193,14 @@ public class TrafficApp extends Application {
         primaryStage.setScene(new Scene(root, 671, 481));
 
         primaryStage.show();
+        
+        generateTrafficAnimation();
 
+    }
+
+    public void generateTrafficAnimation() {
+        
+        
         TimerTask addCarTask = new TimerTask() {
             int count = 0;
 
@@ -206,7 +224,7 @@ public class TrafficApp extends Application {
                     Platform.runLater(() -> {
                         root.getChildren().add(car.getCar());
                         root.getChildren().add(car2.getCar());
-
+                        
                         ArrayList<PathTransition> pTList = getAnimationPaths(car.getVertexList(), car.getCar());
                         ArrayList<PathTransition> pTList2 = getAnimationPaths2(car.getVertexList(), car2.getCar());
 

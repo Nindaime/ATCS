@@ -28,14 +28,11 @@ public class Car {
     private static final double WIDTH = 10;
     private static final double HEIGHT = 10;
     private boolean isStopped = false;
-    private static final long CHECK_CAR_PROXIMITY_WAIT_TIME = 2000;
-    private long pauseTime = 0;
-    private Duration playTime;
-    long pauseStartTime;
 
-    private Timer timer = new Timer();
-    private static ArrayList<Car> cars = TrafficApp.cars;
-    private boolean canCancelTimer = false;
+    private long pauseTime = 0;
+    private long playTime;
+    private long pauseStartTime;
+    private long playStartTime;
 
     //expose the list of all cars
     public Car(GraphPath<String, DefaultEdge> route) {
@@ -98,21 +95,23 @@ public class Car {
         this.seq = seq;
 
         seq.setOnFinished((e) -> {
-            playTime = seq.getCycleDuration();
-            System.out.println("total time played " +playTime);
-            System.out.println("total time paused " +pauseTime);
+            playTime = System.currentTimeMillis() - playStartTime;
+            System.out.println("total time played " + playTime);
+            System.out.println("total time paused " + pauseTime);
 
         });
 
         seq.setNode(pane);
+        playStartTime = System.currentTimeMillis();
         start();
+
     }
 
     public long getTotalDelayTime() {
         return pauseTime;
     }
 
-    public Duration getTotalPlayTime() {
+    public long getTotalPlayTime() {
         return playTime;
     }
 
@@ -128,7 +127,7 @@ public class Car {
     public void start() {
         seq.play();
         pauseTime += (System.currentTimeMillis() - pauseStartTime);
-        System.out.println("total time paused " +pauseTime);
+        System.out.println("total time paused " + pauseTime);
         isStopped = false;
 
     }

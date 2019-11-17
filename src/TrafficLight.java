@@ -1,10 +1,6 @@
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import javafx.geometry.Bounds;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
@@ -21,15 +17,11 @@ import javafx.scene.shape.Rectangle;
  */
 public class TrafficLight {
 
-    private String isOn;
     private String name;
     private boolean isGreen;// should be observable
-    private boolean isYellow;
-    private int numberOfCarsInSensorZone;// should be observable
+
     private final Circle circle;
     private SensorArea sensorArea;
-
-   
 
     public TrafficLight(double x, double y, TrafficLightDirection direction) {
         // these dimensions are not particularly for the traffic light but for 
@@ -135,7 +127,7 @@ public class TrafficLight {
         });
     }
 
-    public void setLightColor(String color,ArrayList<Car> trafficCars) {
+    public void setLightColor(String color, ArrayList<Car> trafficCars) {
 
         Paint paint;
 
@@ -199,11 +191,7 @@ public class TrafficLight {
         return counter.get();
     }
 
-    public void setIsYellow(boolean value) {
-        this.isYellow = value;
-
-    }
-
+    
 
     private class SensorArea extends Rectangle {
 //        double x,y;
@@ -213,7 +201,7 @@ public class TrafficLight {
             this.setLayoutY(y);
             this.setWidth(width);
             this.setHeight(height);
-            this.setFill(Color.BLACK);
+            this.setFill(Color.TRANSPARENT);
 
         }
 

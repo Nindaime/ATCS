@@ -67,7 +67,11 @@ public class TimerLightGroup implements TrafficLightGroup {
                 yellowTrafficLight.setLightColor("yellow",TrafficApp.cars2);
                 try {
                     TimeUnit.SECONDS.sleep(4);
-                    greenTrafficLight.setLightColor("red",TrafficApp.cars2);
+                    trafficLights.forEach(e->{
+                        if(e == yellowTrafficLight){ return; }
+                        e.setLightColor("red",TrafficApp.cars2);
+                    });
+                    
                     greenTrafficLight = yellowTrafficLight;
                     greenTrafficLight.setLightColor("green",TrafficApp.cars2);
                     
