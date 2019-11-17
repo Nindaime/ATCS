@@ -127,7 +127,7 @@ public class Car {
 
     public void start() {
         seq.play();
-        pauseTime += System.currentTimeMillis() - pauseStartTime;
+        pauseTime += (System.currentTimeMillis() - pauseStartTime);
         System.out.println("total time paused " +pauseTime);
         isStopped = false;
 

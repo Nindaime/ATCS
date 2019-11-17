@@ -9,10 +9,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.PathTransition;
 import javafx.animation.SequentialTransition;
-import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
@@ -24,6 +26,8 @@ import javafx.util.Duration;
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.parser.PathParser;
 import org.apache.batik.util.XMLResourceDescriptor;
+import javafx.scene.chart.XYChart;
+import javafx.scene.control.Button;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
@@ -37,12 +41,13 @@ public class TrafficApp extends Application {
     public static ArrayList<IntelligentLightGroup> trafficLightGroup = new ArrayList<>();
     public static ArrayList<TimerLightGroup> trafficLightGroup2 = new ArrayList<>();
 
-    private static final int TOTAL_NUMBER_OF_CARS = 1;
+    private static final int TOTAL_NUMBER_OF_CARS = 6;
     private static final long ADD_CAR_WAIT_TIME = 3000;
     private static final long CHECK_SENSOR_AREA_TIME = 3000;
     private static final long CHECK_CAR_PROXIMITY_WAIT_TIME = 2000;
     private static final int SECOND_MAP_OFFSET = 600;
 
+    private LineChart<String, Number> lineChart;
     private Timer timer;
 
     public final static String[][] POSSIBLE_ROUTES = {{"L2", "L6"}, {"L2", "L10"}, {"L2", "L14"},
@@ -55,9 +60,43 @@ public class TrafficApp extends Application {
 
     }
 
+    public long getAverageDelayTime(ArrayList<Car> cars) {
+        long sum = 0;
+        sum = cars.stream().map((car) -> car.getTotalDelayTime()).reduce(sum, (accumulator, _item) -> accumulator + _item);
+        return (long) (sum / cars.size());
+    }
+
+    public long getAverageTravelTime(ArrayList<Car> cars) {
+        double sum = 0;
+        sum = cars.stream().map((car) -> car.getTotalPlayTime().toSeconds()).reduce(sum, (accumulator, _item) -> accumulator + _item);
+        return (long) (sum / cars.size());
+    }
+
+    public void drawGraph() {
+        lineChart.setTitle("Comparing adaptive and non adaptive graph system");
+
+        XYChart.Series series1 = new XYChart.Series();
+        series1.setName("Adaptive");
+
+        var averageDelayTime = getAverageDelayTime(cars);
+        var averageTravelTime = getAverageTravelTime(cars);
+
+        series1.getData().add(new XYChart.Data("Delay Time", averageDelayTime));
+        series1.getData().add(new XYChart.Data("Total Time", averageTravelTime));
+
+        var averageDelayTime2 = getAverageDelayTime(cars2);
+        var averageTravelTime2 = getAverageTravelTime(cars2);
+
+        XYChart.Series series2 = new XYChart.Series();
+        series2.setName("Non Adaptive 2");
+        series2.getData().add(new XYChart.Data("Delay Time", averageDelayTime2));
+        series2.getData().add(new XYChart.Data("Total Time", averageTravelTime2));
+
+        lineChart.getData().addAll(series1, series2);
+    }
+
     // method to automatically add car to the road and attaching paths to them
     public static void main(String args[]) {
-        // create IntelligentLightGroup which are five;
 
         launch(args);
 
@@ -67,6 +106,20 @@ public class TrafficApp extends Application {
     public void start(Stage primaryStage) {
 
         Pane root = new Pane();
+        // initialize line graph
+        final CategoryAxis xAxis = new CategoryAxis();
+        final NumberAxis yAxis = new NumberAxis();
+        xAxis.setLabel("Traffic Light");
+        lineChart = new LineChart<>(xAxis, yAxis);
+        lineChart.setLayoutX(0);
+        lineChart.setLayoutY(300);
+
+        timer = new Timer();
+
+        ImageView map = new ImageView(new Image(getClass().getResourceAsStream("img/road_v2.png")));
+        ImageView map2 = new ImageView(new Image(getClass().getResourceAsStream("img/road_v2.png")));
+        Button button = new Button("Show Map");
+
         // for the intelligent group
         IntelligentLightGroup group1 = new IntelligentLightGroup(125, 194);
         IntelligentLightGroup group2 = new IntelligentLightGroup(272, 194);
@@ -93,12 +146,7 @@ public class TrafficApp extends Application {
         trafficLightGroup2.add(group9);
         trafficLightGroup2.add(group10);
 
-        timer = new Timer();
-
-//        var source = "L13";
-//        var destination = "L10";
-        ImageView map = new ImageView(new Image(getClass().getResourceAsStream("img/road_v2.png")));
-        ImageView map2 = new ImageView(new Image(getClass().getResourceAsStream("img/road_v2.png")));
+        
 
         map.setFitWidth(540);
         map2.setFitWidth(540);
@@ -108,8 +156,16 @@ public class TrafficApp extends Application {
 
         map2.setLayoutX(SECOND_MAP_OFFSET);
 
+        button.setLayoutX(20);
+        button.setLayoutY(500);
+        button.setOnAction(e -> {
+            drawGraph();
+            root.getChildren().add(4, lineChart);
+        });
+
         root.getChildren().add(0, map);
         root.getChildren().add(1, map2);
+        root.getChildren().add(2, button);
 
         addTrafficLightToRoot(group1, root);
         addTrafficLightToRoot(group2, root);
@@ -148,13 +204,13 @@ public class TrafficApp extends Application {
                     cars2.add(car2);
 
                     Platform.runLater(() -> {
-//                        root.getChildren().add(car.getCar());
+                        root.getChildren().add(car.getCar());
                         root.getChildren().add(car2.getCar());
 
-//                        ArrayList<PathTransition> pTList = getAnimationPaths(car.getVertexList(), car.getCar());
+                        ArrayList<PathTransition> pTList = getAnimationPaths(car.getVertexList(), car.getCar());
                         ArrayList<PathTransition> pTList2 = getAnimationPaths2(car.getVertexList(), car2.getCar());
 
-//                        playSequentialTransition(pTList, car);
+                        playSequentialTransition(pTList, car);
                         playSequentialTransition(pTList2, car2);
 
                     });
