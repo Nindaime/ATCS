@@ -201,7 +201,8 @@ public class TrafficLight {
             this.setLayoutY(y);
             this.setWidth(width);
             this.setHeight(height);
-            this.setFill(Color.TRANSPARENT);
+            this.setFill(Color.WHITE);
+            this.setOpacity(0.15f);
 
         }
 

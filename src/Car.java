@@ -1,12 +1,9 @@
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
 import javafx.animation.SequentialTransition;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
-import javafx.util.Duration;
 import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DefaultEdge;
 

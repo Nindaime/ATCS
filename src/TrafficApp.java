@@ -50,6 +50,8 @@ public class TrafficApp extends Application {
     private LineChart<String, Number> lineChart;
     private Timer timer;
     private Pane root;
+    private Pane root2;
+
     public final static String[][] POSSIBLE_ROUTES = {{"L2", "L6"}, {"L2", "L10"}, {"L2", "L14"},
     {"L5", "L10"}, {"L5", "L14"}, {"L5", "L1"}, {"L9", "L14"},
     {"L9", "L1"}, {"L9", "L6"}, {"L13", "L1"}, {"L13", "L6"}, {"L13", "L10"}};
@@ -111,9 +113,9 @@ public class TrafficApp extends Application {
         final NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel("Traffic Light");
         lineChart = new LineChart<>(xAxis, yAxis);
-        lineChart.setLayoutX(500);
-        lineChart.setLayoutY(400);
-        lineChart.setPrefSize(350, 350);
+        lineChart.setLayoutX(0);
+        lineChart.setLayoutY(0);
+        lineChart.setPrefSize(400, 400);
 
         timer = new Timer();
 
@@ -163,10 +165,19 @@ public class TrafficApp extends Application {
         simulateAnimationButton.setLayoutY(100);
         graphButton.setOnAction(e -> {
             drawGraph();
-            root.getChildren().add(4, lineChart);
+            root2 = new Pane();
+            root2.getChildren().add(0, lineChart);
+
+            Stage stage = new Stage();
+            stage.setTitle("Graph Comparing Adaptive and Non Adaptive");
+            stage.setScene(new Scene(root2, 450, 450));
+            stage.setResizable(false);
+            stage.show();
+
         });
 
         simulateAnimationButton.setOnAction(e -> {
+
             drawGraph();
             cars.clear();
             cars2.clear();
@@ -193,14 +204,13 @@ public class TrafficApp extends Application {
         primaryStage.setScene(new Scene(root, 671, 481));
 
         primaryStage.show();
-        
+
         generateTrafficAnimation();
 
     }
 
     public void generateTrafficAnimation() {
-        
-        
+
         TimerTask addCarTask = new TimerTask() {
             int count = 0;
 
@@ -224,7 +234,7 @@ public class TrafficApp extends Application {
                     Platform.runLater(() -> {
                         root.getChildren().add(car.getCar());
                         root.getChildren().add(car2.getCar());
-                        
+
                         ArrayList<PathTransition> pTList = getAnimationPaths(car.getVertexList(), car.getCar());
                         ArrayList<PathTransition> pTList2 = getAnimationPaths2(car.getVertexList(), car2.getCar());
 
@@ -244,9 +254,6 @@ public class TrafficApp extends Application {
             @Override
             public void run() {
 
-                //                if (cars.size() == TOTAL_NUMBER_OF_CARS) {
-                //                    this.cancel();
-                //                }
                 trafficLightGroup.forEach(group -> {
                     try {
                         group.checkTrafficLight();
@@ -263,9 +270,6 @@ public class TrafficApp extends Application {
             @Override
             public void run() {
 
-                //                if (cars.size() == TOTAL_NUMBER_OF_CARS) {
-                //                    this.cancel();
-                //                }
                 trafficLightGroup2.forEach(group -> {
                     try {
                         group.checkTrafficLight();
@@ -344,6 +348,7 @@ public class TrafficApp extends Application {
                     "C:\\Users\\User01\\Documents\\NetBeansProjects\\ATCS\\src\\img\\ATCS_DrivePath.svg");
 
             SVGDocument doc = f.createSVGDocument(uri);
+            
             Element element = doc.getElementById(route);
             pathData = element.getAttributeNode("d").getValue();
             transformMatrix = element.getAttributeNode("transform").getValue();
