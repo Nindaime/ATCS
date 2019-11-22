@@ -1,5 +1,5 @@
 
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +30,9 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.svg.SVGDocument;
 
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
+import org.w3c.dom.svg.SVGDocument;
 
 public class TrafficApp extends Application {
 
@@ -343,13 +343,17 @@ public class TrafficApp extends Application {
             String xmlParser = XMLResourceDescriptor.getXMLParserClassName();
             SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(xmlParser);
 
-            String uri = "FILE:\\Users\\User01\\Documents\\NetBeansProjects\\ATCS\\src\\img\\ATCS_DrivePath.svg";
-            FileInputStream fI = new FileInputStream(
-                    "C:\\Users\\User01\\Documents\\NetBeansProjects\\ATCS\\src\\img\\ATCS_DrivePath.svg");
+            File drivePath = new File("src/img/ATCS_DrivePath.svg");
+            SVGDocument svgDrivePath = f.createSVGDocument(drivePath.getAbsoluteFile().toURI().toString());
+            Element element = svgDrivePath.getElementById(route);
 
-            SVGDocument doc = f.createSVGDocument(uri);
-            
-            Element element = doc.getElementById(route);
+//            String uri = "FILE:\\Users\\User01\\Documents\\NetBeansProjects\\ATCS\\src\\img\\ATCS_DrivePath.svg";
+//            FileInputStream fI = new FileInputStream(
+//                    "C:\\Users\\User01\\Documents\\NetBeansProjects\\ATCS\\src\\img\\ATCS_DrivePath.svg");
+//
+//            SVGDocument doc = f.createSVGDocument(uri);
+//            
+//            Element element = doc.getElementById(route);
             pathData = element.getAttributeNode("d").getValue();
             transformMatrix = element.getAttributeNode("transform").getValue();
 
