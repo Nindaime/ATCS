@@ -32,6 +32,7 @@ import javafx.scene.control.Button;
 import org.w3c.dom.Element;
 
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
+
 import org.w3c.dom.svg.SVGDocument;
 
 public class TrafficApp extends Application {
@@ -41,10 +42,10 @@ public class TrafficApp extends Application {
     public static ArrayList<IntelligentLightGroup> trafficLightGroup = new ArrayList<>();
     public static ArrayList<TimerLightGroup> trafficLightGroup2 = new ArrayList<>();
 
-    private static final int TOTAL_NUMBER_OF_CARS = 6;
-    private static final long ADD_CAR_WAIT_TIME = 3000;
+    private static final int TOTAL_NUMBER_OF_CARS = 25; // test for 2
+    private static final long ADD_CAR_WAIT_TIME = 6000; // test for 3000
     private static final long CHECK_SENSOR_AREA_TIME = 3000;
-    private static final long CHECK_CAR_PROXIMITY_WAIT_TIME = 2000;
+    private static final long CHECK_CAR_PROXIMITY_WAIT_TIME = 3000;// 5000
     private static final int SECOND_MAP_OFFSET = 800;
 
     private LineChart<String, Number> lineChart;
@@ -224,6 +225,9 @@ public class TrafficApp extends Application {
                     var pick = pickRandomPath();
                     var source = pick[0];
                     var destination = pick[1];
+//                    var source = "L2";
+//                    var destination = "L6";
+
                     var c = DijkstraShortestPath.findPathBetween(CustomDirectedGraph.getDefaultEdges(), source, destination);
 
                     Car car = new Car(c);
@@ -289,39 +293,53 @@ public class TrafficApp extends Application {
                 if (cars.size() < 2) {
                     return;
                 }
+
+               
+                ArrayList<Car> remainingCars = new ArrayList<>();
+                remainingCars.addAll(cars);
+                
                 cars.forEach((car) -> {
-                    if (car.isStopped()) {
-                        ArrayList<Car> remainingCars = new ArrayList<>();
-                        remainingCars.addAll(cars);
-                        remainingCars.remove(car);
-
-                        // find a car that is close to it
-                        remainingCars.forEach(c -> {
-                            if (!c.isStopped() && c.getX() != 0) {
-                                var gradient = Math.abs(((car.getWidth() / 2 + car.getX()) - (c.getWidth() / 2 + c.getX()))
-                                        / ((car.getHeight() / 2 + car.getY()) - (c.getHeight() / 2 + c.getY())));
-
-                                if (gradient < 5) {
-                                    c.stop();
-                                    System.out.print("gradient " + gradient);
-                                    System.out.println("stop car");
-                                }
-
-                            }
-
-                        });
-
-                        // if any is found check if it has already stopped
-                        // if no then stop the car
+                    
+                    remainingCars.remove(car);
+                    if(remainingCars.size() >= 1){
+                        car.checkProximity(remainingCars);
                     }
+                    
+
                 });
+//                cars.forEach((car) -> {
+//                    if (car.isStopped()) {
+//                        ArrayList<Car> remainingCars = new ArrayList<>();
+//                        remainingCars.addAll(cars);
+//                        remainingCars.remove(car);
+//
+//                        // find a car that is close to it
+//                        remainingCars.forEach(c -> {
+//                            if (!c.isStopped() && c.getX() != 0) {
+//                                var gradient = Math.abs(((car.getWidth() / 2 + car.getX()) - (c.getWidth() / 2 + c.getX()))
+//                                        / ((car.getHeight() / 2 + car.getY()) - (c.getHeight() / 2 + c.getY())));
+//
+//                                if (gradient < 5) {
+//                                    c.stop();
+//                                    System.out.print("gradient " + gradient);
+//                                    System.out.println("stop car");
+//                                }
+//
+//                            }
+//
+//                        });
+//
+//                        // if any is found check if it has already stopped
+//                        // if no then stop the car
+//                    }
+//                });
             }
         };
 
         timer.scheduleAtFixedRate(addCarTask, 0, ADD_CAR_WAIT_TIME);
         timer.schedule(checkSensorAreaTask, 0, CHECK_SENSOR_AREA_TIME);
         timer.schedule(checkTimerTrafficTask, 0, CHECK_SENSOR_AREA_TIME);
-        //        timer.schedule(checkCarProximityTask, 0, CHECK_CAR_PROXIMITY_WAIT_TIME);
+        timer.schedule(checkCarProximityTask, 0, CHECK_CAR_PROXIMITY_WAIT_TIME);
 
     }
 
@@ -347,13 +365,6 @@ public class TrafficApp extends Application {
             SVGDocument svgDrivePath = f.createSVGDocument(drivePath.getAbsoluteFile().toURI().toString());
             Element element = svgDrivePath.getElementById(route);
 
-//            String uri = "FILE:\\Users\\User01\\Documents\\NetBeansProjects\\ATCS\\src\\img\\ATCS_DrivePath.svg";
-//            FileInputStream fI = new FileInputStream(
-//                    "C:\\Users\\User01\\Documents\\NetBeansProjects\\ATCS\\src\\img\\ATCS_DrivePath.svg");
-//
-//            SVGDocument doc = f.createSVGDocument(uri);
-//            
-//            Element element = doc.getElementById(route);
             pathData = element.getAttributeNode("d").getValue();
             transformMatrix = element.getAttributeNode("transform").getValue();
 

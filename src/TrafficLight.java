@@ -48,7 +48,7 @@ public class TrafficLight {
                 break;
             case WEST:
                 newX = x - distanceFromCenter;
-                sensorArea = new SensorArea(newX - 60, newY + 8, 40, 25);
+                sensorArea = new SensorArea(newX - 70, newY + 8, 40, 25);
                 name = "west";
                 break;
         }
@@ -81,8 +81,8 @@ public class TrafficLight {
         cars.forEach((Car car) -> {
 
             if (car.isSequenceSet()) {
-                var x = car.getX() + car.getWidth() / 2;
-                var y = car.getY() + car.getHeight() / 2;
+                var x = car.getX() ;
+                var y = car.getY() ;
 
                 boolean a = sensorArea.getLayoutX() < x && sensorArea.getLayoutY() < y
                         && sensorArea.getLayoutX() + sensorArea.getWidth() > x
@@ -108,8 +108,8 @@ public class TrafficLight {
         cars.forEach((Car car) -> {
 
             if (car.isSequenceSet()) {
-                var x = car.getX() + car.getWidth() / 2;
-                var y = car.getY() + car.getHeight() / 2;
+                var x = car.getX() ;
+                var y = car.getY() ;
 
                 boolean a = sensorArea.getLayoutX() < x && sensorArea.getLayoutY() < y
                         && sensorArea.getLayoutX() + sensorArea.getWidth() > x
@@ -131,9 +131,6 @@ public class TrafficLight {
 
         Paint paint;
 
-        if (null == color) {
-            paint = Color.RED;
-        } else {
             switch (color) {
                 case "green":
                     paint = Color.GREEN;
@@ -156,7 +153,7 @@ public class TrafficLight {
                     stopCar(trafficCars);
                     break;
             }
-        }
+        
 
         circle.setFill(paint);
     }
